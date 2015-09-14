@@ -1,0 +1,21 @@
+#output for id 1740428
+list
+de
+state
+new
+county
+route
+disambiguation
+school
+river
+john
+township
+album
+c
+film
+&
+station
+district
+park
+football
+south

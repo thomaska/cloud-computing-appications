@@ -1,5 +1,8 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.lang.reflect.Array;
+import java.io.FileReader;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -51,22 +54,66 @@ public class MP1 {
 
     public String[] process() throws Exception {
         String[] ret = new String[20];
-       
-        //TODO
+        List<String> stopWordsList = Arrays.asList(stopWordsArray);
 
+        File file = new File(inputFileName);
+        List<String> lines = new ArrayList<String>();
+        try {
+            FileReader reader = new FileReader(file);
+            BufferedReader buffReader = new BufferedReader(reader);
+            String s;
+            while ((s = buffReader.readLine()) != null) {
+                lines.add(s);
+            }
+        } catch (IOException e) {
+            System.exit(0);
+        }
+
+        Map<String, Integer> resultsMap = new HashMap<String, Integer>();
+        Integer[] indexes = getIndexes();
+
+        for (Integer index : indexes) {
+            String s = lines.get(index);
+            StringTokenizer tokens = new StringTokenizer(s, delimiters, false);
+            while (tokens.hasMoreTokens()) {
+                String token = tokens.nextToken().trim().toLowerCase();
+                if (!stopWordsList.contains(token)) {
+                    int previousValue = resultsMap.get(token) == null ? 0 : resultsMap.get(token);
+                    resultsMap.put(token, ++previousValue);
+                }
+            }
+        }
+        // Convert Map to List
+        List<Map.Entry<String, Integer>> list =
+                new LinkedList<Map.Entry<String, Integer>>(resultsMap.entrySet());
+
+        // Sort list with comparator, to compare the Map values
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> o1,
+                               Map.Entry<String, Integer> o2) {
+                int returnValue = o2.getValue().compareTo(o1.getValue());
+                return returnValue == 0 ? o1.getKey().compareTo(o2.getKey()) : returnValue;
+            }
+        });
+        int i = 0;
+        for (Map.Entry<String, Integer> entry : list) {
+            ret[i] = entry.getKey();
+            if (++i >= ret.length) {
+                break;
+            }
+        }
         return ret;
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 1){
+        if (args.length < 1) {
             System.out.println("MP1 <User ID>");
-        }
-        else {
+        } else {
             String userName = args[0];
             String inputFileName = "./input.txt";
             MP1 mp = new MP1(userName, inputFileName);
             String[] topItems = mp.process();
-            for (String item: topItems){
+            for (String item : topItems) {
                 System.out.println(item);
             }
         }
